@@ -1,0 +1,10 @@
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+build/
+dist/
+*.spec
+# never commit real API responses or credentials
+.credentials.json
+usage_raw*.json

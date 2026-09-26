@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Claude Usage</title>
+  <link rel="stylesheet" href="app.css">
+</head>
+<body>
+  <!-- Dashboard -->
+  <main id="view-dashboard" class="view">
+    <header class="bar">
+      <div class="title">
+        <span class="logo" aria-hidden="true"></span>
+        <span>Claude Usage</span>
+        <span id="plan" class="badge" hidden></span>
+      </div>
+      <div class="actions">
+        <button id="btn-refresh" class="icon-btn" title="Refresh now" aria-label="Refresh now">
+          <svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.34-5.66M20 4v5h-5"/></svg>
+        </button>
+        <button id="btn-settings" class="icon-btn" title="Settings" aria-label="Settings">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <div id="banner" class="banner" hidden></div>
+
+    <section class="session card">
+      <div class="ring">
+        <svg viewBox="0 0 120 120">
+          <circle class="track" cx="60" cy="60" r="52"/>
+          <circle id="ring-fill" class="fill" cx="60" cy="60" r="52"/>
+        </svg>
+        <div class="ring-label">
+          <div id="session-pct" class="big">–</div>
+          <div class="muted small">session</div>
+        </div>
+      </div>
+      <div class="session-meta">
+        <div class="kicker">5-hour session</div>
+        <div id="session-reset" class="reset">Waiting for data…</div>
+        <div id="session-pace" class="pace" hidden></div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="kicker">Weekly limits</div>
+      <div id="weekly-list" class="bars"></div>
+    </section>
+
+    <section id="breakdown-card" class="card" hidden>
+      <div class="kicker">This week by surface</div>
+      <div id="breakdown-bar" class="stack"></div>
+      <div id="breakdown-legend" class="legend"></div>
+    </section>
+
+    <footer class="foot">
+      <span id="updated" class="muted small">Not updated yet</span>
+      <button id="btn-usage-page" class="link">Open on claude.ai ↗</button>
+    </footer>
+  </main>
+
+  <!-- Settings -->
+  <main id="view-settings" class="view" hidden>
+    <header class="bar">
+      <button id="btn-back" class="icon-btn" title="Back" aria-label="Back">
+        <svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <div class="title"><span>Settings</span></div>
+      <span class="spacer"></span>
+    </header>
+
+    <section class="card">
+      <div class="kicker">Refresh every</div>
+      <div class="seg" data-setting="poll_seconds">
+        <button data-value="30">30s</button>
+        <button data-value="60">1m</button>
+        <button data-value="300">5m</button>
+        <button data-value="900">15m</button>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="kicker">Tray icon shows</div>
+      <div class="seg" data-setting="tray_metric">
+        <button data-value="session">Session</button>
+        <button data-value="weekly">Weekly</button>
+        <button data-value="highest">Highest</button>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="kicker">Notifications</div>
+      <label class="toggle"><span>Alert at 80%</span><input type="checkbox" data-setting="notify_80"><i></i></label>
+      <label class="toggle"><span>Alert at 95%</span><input type="checkbox" data-setting="notify_95"><i></i></label>
+      <label class="toggle"><span>Tell me when the session resets</span><input type="checkbox" data-setting="notify_reset"><i></i></label>
+    </section>
+
+    <section class="card">
+      <label class="toggle"><span>Start with Windows</span><input type="checkbox" data-setting="start_with_windows"><i></i></label>
+    </section>
+
+    <p class="muted small note">Reads the login Claude Code saved on this PC. The token stays in memory and is never refreshed or stored by this app.</p>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
