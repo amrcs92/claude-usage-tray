@@ -59,6 +59,7 @@ class Popup:
         self._visible = False
         self._hidden_at = 0.0
         self._loaded = False
+        self._pending_view: str | None = None
         self.window = webview.create_window(
             "Claude Usage",
             url=str(ui_dir() / "index.html"),
@@ -77,6 +78,9 @@ class Popup:
 
     def _on_loaded(self) -> None:
         self._loaded = True
+        if self._pending_view:
+            self.window.evaluate_js(f"showView({json.dumps(self._pending_view)})")
+            self._pending_view = None
 
     def _on_closing(self) -> bool:
         # Alt+F4 etc. only hides the popup; Quit from the tray exits for real.
@@ -95,9 +99,15 @@ class Popup:
 
     def show(self, view: str = "dashboard") -> None:
         left, top, right, bottom = _work_area_logical()
-        self.window.move(int(right - WIDTH - MARGIN), int(bottom - HEIGHT - MARGIN))
+        # Frameless windows can come out a little smaller than requested,
+        # so position by the real size.
+        width = self.window.width or WIDTH
+        height = self.window.height or HEIGHT
+        self.window.move(int(right - width - MARGIN), int(bottom - height - MARGIN))
         if self._loaded:
             self.window.evaluate_js(f"showView({json.dumps(view)})")
+        else:
+            self._pending_view = view
         self.window.show()
         self._visible = True
 

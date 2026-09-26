@@ -199,3 +199,13 @@ def test_credentials_missing(tmp_path):
 def test_config_dir_env(monkeypatch, tmp_path):
     monkeypatch.setenv("CLAUDE_CONFIG_DIR", str(tmp_path))
     assert credentials.credentials_path() == tmp_path / ".credentials.json"
+
+
+# --- demo ------------------------------------------------------------------------
+
+@pytest.mark.parametrize("scenario", ["normal", "high", "expired", "offline"])
+def test_demo_scenarios(scenario):
+    from app import demo
+    snap = demo.snapshot(scenario)
+    assert snap.session and snap.weekly and snap.breakdown
+    assert demo.status(scenario)[0] in ("ok", "expired", "offline")

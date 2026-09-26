@@ -1,6 +1,7 @@
 """Entry point: starts the tray icon, the poller and the (hidden) popup."""
 from __future__ import annotations
 
+import argparse
 import ctypes
 import random
 import sys
@@ -15,7 +16,7 @@ if not getattr(sys, "frozen", False):  # allow `python app/main.py`
 
 import webview
 
-from app import autostart, credentials, settings as settings_mod
+from app import autostart, credentials, demo, settings as settings_mod
 from app.model import UsageSnapshot, pacing
 from app.notifier import Notifier
 from app.popup import Api, Popup
@@ -27,8 +28,11 @@ MANUAL_REFRESH_THROTTLE = 10
 
 
 class App:
-    def __init__(self) -> None:
-        self.settings = settings_mod.load()
+    def __init__(self, demo_scenario: str | None = None, show_view: str | None = None,
+                 pin: bool = False) -> None:
+        self.demo = demo_scenario       # synthetic data, nothing persisted
+        self.show_view = show_view
+        self.settings = settings_mod.Settings() if self.demo else settings_mod.load()
         self.notifier = Notifier(state_path=settings_mod.data_dir() / "notified.json")
         self._lock = threading.Lock()
         self._wake = threading.Event()
@@ -46,7 +50,7 @@ class App:
             "refresh": self.refresh,
             "save_settings": self.save_settings,
             "usage_page": self.open_usage_page,
-            "hide": lambda: self.popup.hide(),
+            "hide": lambda: None if pin else self.popup.hide(),
         }))
         self.tray = Tray({
             "toggle": lambda: self.popup.toggle(),
@@ -67,6 +71,11 @@ class App:
 
     def _poll_once(self) -> float:
         interval = self.settings.poll_seconds
+        if self.demo:
+            with self._lock:
+                self.plan, self.snapshot = "max", demo.snapshot(self.demo)
+            self._set(*demo.status(self.demo))
+            return interval
         try:
             creds = credentials.load()
             self.plan = creds.subscription_type
@@ -124,6 +133,9 @@ class App:
         new = settings_mod.Settings.from_dict(merged)
         poll_changed = new.poll_seconds != self.settings.poll_seconds
         self.settings = new
+        if self.demo:
+            self._publish()
+            return self.view_state()
         settings_mod.save(new)
         try:
             if new.start_with_windows != autostart.is_enabled():
@@ -166,7 +178,8 @@ class App:
                     "pace": {"ahead": pace.ahead, "text": pace.text} if pace else None,
                 })
         s = self.settings.to_dict()
-        s["start_with_windows"] = _safe(autostart.is_enabled, s["start_with_windows"])
+        if not self.demo:
+            s["start_with_windows"] = _safe(autostart.is_enabled, s["start_with_windows"])
         return {
             "status": status,
             "message": message,
@@ -182,9 +195,9 @@ class App:
     def _started(self) -> None:
         threading.Thread(target=self.tray.icon.run, daemon=True).start()
         threading.Thread(target=self._poll_loop, daemon=True).start()
-        if "--show" in sys.argv:  # dev aid: open the popup at launch
+        if self.show_view:
             time.sleep(1)
-            self.popup.show()
+            self.popup.show(self.show_view)
 
 
 def _safe(fn, default):
@@ -200,9 +213,17 @@ def _single_instance() -> bool:
 
 
 def main() -> None:
+    parser = argparse.ArgumentParser(description="Claude plan usage in the Windows tray.")
+    parser.add_argument("--show", nargs="?", const="dashboard", choices=("dashboard", "settings"),
+                        help="open the popup at launch")
+    parser.add_argument("--demo", nargs="?", const="normal", choices=demo.SCENARIOS,
+                        help="use synthetic data instead of your account (no network)")
+    parser.add_argument("--pin", action="store_true",
+                        help="keep the popup open when it loses focus (screenshots, UI work)")
+    args = parser.parse_args()
     if not _single_instance():
         return
-    app = App()
+    app = App(demo_scenario=args.demo, show_view=args.show, pin=args.pin)
     webview.start(app._started, gui="edgechromium")
 
 
