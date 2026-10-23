@@ -4,6 +4,8 @@
 
 Claude Usage Tray shows your 5-hour session limit and weekly limits without opening claude.ai. It reuses the login that [Claude Code](https://claude.com/claude-code) already saved on your PC, so there is nothing to sign in to and nothing to configure. If Claude Code works, this works.
 
+> **Unofficial.** This is a personal project. It is not affiliated with, endorsed by or supported by Anthropic.
+
 <p align="center">
   <img src="docs/screenshots/dashboard.png" alt="Popup dashboard showing a 42% session ring, weekly bars and a usage breakdown" width="300">
   &nbsp;&nbsp;
@@ -58,7 +60,7 @@ API-key-only Claude Code setups have no plan limits, so there is nothing to show
 
 ### Option A: download the `.exe`
 
-1. Download `ClaudeUsageTray.exe` from the [Releases](https://github.com/amrcs92/claude-usage-tray/releases) page, if a build is published there.
+1. Download `ClaudeUsageTray.exe` from the [latest release](https://github.com/amrcs92/claude-usage-tray/releases/latest).
 2. Put it anywhere (for example `%LOCALAPPDATA%\Programs\ClaudeUsageTray\`) and double-click it.
 3. The `.exe` is not code-signed, so Windows SmartScreen may say **"Windows protected your PC"**. Click **More info → Run anyway**.
 
