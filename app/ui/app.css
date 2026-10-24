@@ -11,16 +11,19 @@
   --track: #3A3835;
   color-scheme: dark;
 }
-@media (prefers-color-scheme: light) {
-  :root {
-    --bg: #F7F5F2;
-    --card: #FFFFFF;
-    --line: #E6E2DC;
-    --text: #1F1E1D;
-    --muted: #6E6A64;
-    --track: #ECE8E2;
-    color-scheme: light;
-  }
+/* app.js sets data-theme from the Theme setting ("system" follows Windows). */
+:root[data-theme="light"] {
+  --bg: #F7F5F2;
+  --card: #FFFFFF;
+  --line: #E6E2DC;
+  --text: #1F1E1D;
+  --muted: #6E6A64;
+  --accent: #C2603F;
+  --teal: #4E9C87;
+  --amber: #C98A2B;
+  --red: #B8433A;
+  --track: #ECE8E2;
+  color-scheme: light;
 }
 
 * { box-sizing: border-box; }

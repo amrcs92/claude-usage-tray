@@ -149,9 +149,20 @@ setInterval(tick, 30000);
 
 // --- Settings ---------------------------------------------------------------
 
+const systemLight = window.matchMedia("(prefers-color-scheme: light)");
+
+function applyTheme() {
+  const theme = (state && state.settings && state.settings.theme) || "system";
+  const light = theme === "light" || (theme === "system" && systemLight.matches);
+  document.documentElement.dataset.theme = light ? "light" : "dark";
+}
+systemLight.addEventListener("change", applyTheme);
+applyTheme();
+
 function renderSettings() {
   const s = state && state.settings;
   if (!s) return;
+  applyTheme();
   document.querySelectorAll(".seg[data-setting]").forEach((seg) => {
     const current = String(s[seg.dataset.setting]);
     seg.querySelectorAll("button").forEach((b) => b.classList.toggle("on", b.dataset.value === current));

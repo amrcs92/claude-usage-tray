@@ -8,6 +8,7 @@ from pathlib import Path
 
 POLL_CHOICES = (30, 60, 300, 900)
 METRIC_CHOICES = ("session", "weekly", "highest")
+THEME_CHOICES = ("system", "light", "dark")
 
 
 def data_dir() -> Path:
@@ -23,12 +24,15 @@ class Settings:
     notify_95: bool = True
     notify_reset: bool = False
     start_with_windows: bool = False
+    theme: str = "system"
 
     def validated(self) -> "Settings":
         if self.poll_seconds not in POLL_CHOICES:
             self.poll_seconds = 60
         if self.tray_metric not in METRIC_CHOICES:
             self.tray_metric = "session"
+        if self.theme not in THEME_CHOICES:
+            self.theme = "system"
         return self
 
     @classmethod

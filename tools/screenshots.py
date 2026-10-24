@@ -16,14 +16,17 @@ sys.path.insert(0, str(ROOT))
 
 from PIL import Image, ImageDraw, ImageFont, ImageGrab  # noqa: E402
 
-from app.tray import render_icon  # noqa: E402
+from app.tray import render_app_icon, render_icon  # noqa: E402
 
 OUT = ROOT / "docs" / "screenshots"
 SHOTS = [
-    ("dashboard", ["--demo", "normal", "--show", "dashboard"]),
-    ("dashboard-high", ["--demo", "high", "--show", "dashboard"]),
-    ("settings", ["--demo", "normal", "--show", "settings"]),
-    ("login-expired", ["--demo", "expired", "--show", "dashboard"]),
+    ("dashboard", ["--demo", "normal", "--show", "dashboard", "--theme", "dark"]),
+    ("dashboard-light", ["--demo", "normal", "--show", "dashboard", "--theme", "light"]),
+    ("dashboard-high", ["--demo", "high", "--show", "dashboard", "--theme", "dark"]),
+    ("dashboard-high-light", ["--demo", "high", "--show", "dashboard", "--theme", "light"]),
+    ("settings", ["--demo", "normal", "--show", "settings", "--theme", "dark"]),
+    ("settings-light", ["--demo", "normal", "--show", "settings", "--theme", "light"]),
+    ("login-expired", ["--demo", "expired", "--show", "dashboard", "--theme", "dark"]),
 ]
 
 ctypes.windll.shcore.SetProcessDpiAwareness(2)  # capture in physical pixels
@@ -74,8 +77,14 @@ def tray_states() -> None:
     print("wrote docs/screenshots/tray-states.png")
 
 
+def app_icon() -> None:
+    render_app_icon(128).save(OUT / "app-icon.png")
+    print("wrote docs/screenshots/app-icon.png")
+
+
 if __name__ == "__main__":
     OUT.mkdir(parents=True, exist_ok=True)
+    app_icon()
     tray_states()
     for name, args in SHOTS:
         capture_popup(name, args)

@@ -29,10 +29,12 @@ MANUAL_REFRESH_THROTTLE = 10
 
 class App:
     def __init__(self, demo_scenario: str | None = None, show_view: str | None = None,
-                 pin: bool = False) -> None:
+                 pin: bool = False, theme: str | None = None) -> None:
         self.demo = demo_scenario       # synthetic data, nothing persisted
         self.show_view = show_view
         self.settings = settings_mod.Settings() if self.demo else settings_mod.load()
+        if theme:
+            self.settings.theme = theme
         self.notifier = Notifier(state_path=settings_mod.data_dir() / "notified.json")
         self._lock = threading.Lock()
         self._wake = threading.Event()
@@ -219,12 +221,14 @@ def main() -> None:
                         help="open the popup at launch")
     parser.add_argument("--demo", nargs="?", const="normal", choices=demo.SCENARIOS,
                         help="use synthetic data instead of your account (no network)")
+    parser.add_argument("--theme", choices=settings_mod.THEME_CHOICES,
+                        help="override the popup theme for this run (screenshots)")
     parser.add_argument("--pin", action="store_true",
                         help="keep the popup open when it loses focus (screenshots, UI work)")
     args = parser.parse_args()
     if not _single_instance():
         return
-    app = App(demo_scenario=args.demo, show_view=args.show, pin=args.pin)
+    app = App(demo_scenario=args.demo, show_view=args.show, pin=args.pin, theme=args.theme)
     webview.start(app._started, gui="edgechromium")
 
 

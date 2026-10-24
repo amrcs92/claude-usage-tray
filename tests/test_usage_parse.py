@@ -168,6 +168,8 @@ def test_settings_migration_safe():
     assert s.poll_seconds == 60          # invalid choice -> default
     assert s.tray_metric == "weekly"
     assert s.notify_80 is True           # wrong type -> default
+    assert Settings.from_dict({"theme": "light"}).theme == "light"
+    assert Settings.from_dict({"theme": "sepia"}).theme == "system"
 
 
 def _write_creds(tmp_path, oauth):

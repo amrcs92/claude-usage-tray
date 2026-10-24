@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="docs/screenshots/app-icon.png" alt="Claude Usage Tray app icon: a coral tile with a usage gauge and a sparkle" width="96">
+</p>
+
 # Claude Usage Tray
 
 **See your Claude plan usage at a glance, right in the Windows tray.**
@@ -7,10 +11,12 @@ Claude Usage Tray shows your 5-hour session limit and weekly limits without open
 > **Unofficial.** This is a personal project. It is not affiliated with, endorsed by or supported by Anthropic.
 
 <p align="center">
-  <img src="docs/screenshots/dashboard.png" alt="Popup dashboard showing a 42% session ring, weekly bars and a usage breakdown" width="300">
+  <img src="docs/screenshots/dashboard.png" alt="Popup dashboard in the dark theme showing a 42% session ring, weekly bars and a usage breakdown" width="300">
   &nbsp;&nbsp;
-  <img src="docs/screenshots/dashboard-high.png" alt="Popup dashboard at high usage: 86% session in red with an ahead-of-pace warning" width="300">
+  <img src="docs/screenshots/dashboard-light.png" alt="The same popup dashboard in the light theme" width="300">
 </p>
+
+<p align="center"><em>Dark and light themes. By default the popup follows your Windows app theme.</em></p>
 
 <p align="center">
   <img src="docs/screenshots/tray-states.png" alt="Tray icon states: teal under 50%, amber 50–79%, red 80% and above, grey dashed for offline and login expired" width="620">
@@ -44,6 +50,7 @@ Claude Usage Tray shows your 5-hour session limit and weekly limits without open
 | **Popup dashboard** | Left-click for a session ring, weekly bars, reset countdowns and a per-surface breakdown (Claude Code, Chats, Cowork, …). |
 | **Pacing hint** | Compares how much you've used with how much of the window has passed, and tells you whether you'll run out before the reset. |
 | **Notifications** | A Windows toast at 80% and 95%, once per reset window, plus an optional "session reset" toast. |
+| **Light and dark themes** | Follows your Windows app theme, or pick Light or Dark in Settings. |
 | **Hover tooltip** | `Session 42% · resets 6:41 PM` and `Weekly 61% · resets Tue 2:00 AM`, without clicking. |
 | **Start with Windows** | One toggle, no admin rights needed. |
 | **Zero setup** | Reads Claude Code's saved login. New quota types from Anthropic appear as extra bars automatically. |
@@ -122,6 +129,14 @@ By default the number is the **session** %. You can switch it to *Weekly* or *Hi
 - **This week by surface**: how your weekly usage splits across Claude Code, Chats, Cowork and so on, when Anthropic provides it.
 - **Footer**: when the data was last updated, and a link to the full usage page on claude.ai.
 
+At high usage the ring and bars turn red and the pacing hints warn you early:
+
+<p align="center">
+  <img src="docs/screenshots/dashboard-high.png" alt="Popup dashboard at high usage in the dark theme: 86% session in red with an ahead-of-pace warning" width="300">
+  &nbsp;&nbsp;
+  <img src="docs/screenshots/dashboard-high-light.png" alt="The same high-usage dashboard in the light theme" width="300">
+</p>
+
 When something is wrong, a banner at the top explains it and the last known numbers stay visible:
 
 <p align="center">
@@ -133,13 +148,16 @@ When something is wrong, a banner at the top explains it and the last known numb
 Open **Settings** from the gear icon in the popup, or with **Settings…** in the right-click menu.
 
 <p align="center">
-  <img src="docs/screenshots/settings.png" alt="Settings view: refresh interval, tray icon metric, notification toggles, start with Windows" width="300">
+  <img src="docs/screenshots/settings.png" alt="Settings view in the dark theme: refresh interval, tray icon metric, theme, notification toggles" width="300">
+  &nbsp;&nbsp;
+  <img src="docs/screenshots/settings-light.png" alt="Settings view in the light theme with Light selected" width="300">
 </p>
 
 | Setting | Options | Default |
 |---|---|---|
 | Refresh every | 30s · 1m · 5m · 15m | 1m |
 | Tray icon shows | Session · Weekly · Highest | Session |
+| Theme | System · Light · Dark | System (follows Windows) |
 | Alert at 80% | on / off | on |
 | Alert at 95% | on / off | on |
 | Tell me when the session resets | on / off | off |
@@ -243,13 +261,14 @@ py -3.12 -m venv .venv
 ### Command-line options
 
 ```text
-python app\main.py [--demo [normal|high|expired|offline]] [--show [dashboard|settings]] [--pin]
+python app\main.py [--demo [normal|high|expired|offline]] [--show [dashboard|settings]] [--theme system|light|dark] [--pin]
 ```
 
 | Option | Purpose |
 |---|---|
 | `--demo [scenario]` | Uses synthetic data instead of your account. Makes no network calls and saves no settings. |
 | `--show [view]` | Opens the popup at launch, on the dashboard or the settings view. |
+| `--theme theme` | Overrides the Theme setting for this run. `screenshots.py` uses it to capture both themes. |
 | `--pin` | Keeps the popup open when it loses focus. Useful for UI work and screenshots. |
 
 For UI work, run `python app\main.py --demo high --show --pin` and edit `app/ui/*`. Restart the app to reload.
@@ -261,7 +280,7 @@ For UI work, run `python app\main.py --demo high --show --pin` and edit `app/ui/
 .\.venv\Scripts\python tools\screenshots.py   # docs\screenshots\*.png (uses --demo)
 ```
 
-`screenshots.py` opens the popup for each demo scenario and captures just that window. Keep the bottom-right corner of your main screen uncovered while it runs.
+`screenshots.py` writes the app icon preview and the tray-states strip, then opens the popup for each demo scenario in both themes and captures just that window. Quit the running app first, since only one instance can run at a time. Keep the bottom-right corner of your main screen uncovered while it runs.
 
 ### Tests
 
