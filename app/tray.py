@@ -13,6 +13,9 @@ TEAL = "#8FC7B8"
 AMBER = "#E0A84F"
 RED = "#B8433A"
 GREY = "#9A9A9A"
+CORAL = "#D97757"
+CREAM = "#FAF9F5"
+CORAL_TINT = "#E9A792"
 
 SIZE = 64  # drawn large, Windows downsamples for the tray
 
@@ -65,6 +68,31 @@ def render_icon(percent: float | None, state: str = "ok") -> Image.Image:
     fg = "#FFFFFF" if color == RED else "#1B1B1B"
     _centered_text(draw, text, px, fg)
     return img
+
+
+def render_app_icon(size: int = 256, supersample: int = 4) -> Image.Image:
+    """The static app/.exe icon: a coral tile with a usage gauge and a sparkle."""
+    s = size * supersample
+    img = Image.new("RGBA", (s, s), (0, 0, 0, 0))
+    draw = ImageDraw.Draw(img)
+    draw.rounded_rectangle((0, 0, s - 1, s - 1), radius=s * 0.22, fill=CORAL)
+
+    # 270-degree gauge, about two thirds full, with round caps.
+    pad, w = s * 0.17, s * 0.11
+    start, end = 135, 135 + 270 * 0.65
+    box = (pad, pad, s - pad, s - pad)
+    draw.arc(box, start, 135 + 270, fill=CORAL_TINT, width=int(w))
+    draw.arc(box, start, end, fill=CREAM, width=int(w))
+    c, r = s / 2, (s - 2 * pad) / 2 - w / 2
+    for a in (start, end):
+        x, y = c + r * math.cos(math.radians(a)), c + r * math.sin(math.radians(a))
+        draw.ellipse((x - w / 2, y - w / 2, x + w / 2, y + w / 2), fill=CREAM)
+
+    # Four-point sparkle in the middle.
+    k, t = s * 0.17, s * 0.045
+    draw.polygon([(c, c - k), (c + t, c - t), (c + k, c), (c + t, c + t),
+                  (c, c + k), (c - t, c + t), (c - k, c), (c - t, c - t)], fill=CREAM)
+    return img.resize((size, size), Image.LANCZOS)
 
 
 def pick_metric(snap: UsageSnapshot, metric: str) -> Limit | None:
