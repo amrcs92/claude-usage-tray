@@ -27,6 +27,7 @@ SHOTS = [
     ("settings", ["--demo", "normal", "--show", "settings", "--theme", "dark"]),
     ("settings-light", ["--demo", "normal", "--show", "settings", "--theme", "light"]),
     ("login-expired", ["--demo", "expired", "--show", "dashboard", "--theme", "dark"]),
+    ("login-expired-light", ["--demo", "expired", "--show", "dashboard", "--theme", "light"]),
 ]
 
 ctypes.windll.shcore.SetProcessDpiAwareness(2)  # capture in physical pixels

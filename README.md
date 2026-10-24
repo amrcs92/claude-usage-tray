@@ -140,7 +140,9 @@ At high usage the ring and bars turn red and the pacing hints warn you early:
 When something is wrong, a banner at the top explains it and the last known numbers stay visible:
 
 <p align="center">
-  <img src="docs/screenshots/login-expired.png" alt="Popup with a red banner: Login expired. Run any claude command to refresh your login." width="300">
+  <img src="docs/screenshots/login-expired.png" alt="Popup in the dark theme with a red banner: Login expired. Run any claude command to refresh your login." width="300">
+  &nbsp;&nbsp;
+  <img src="docs/screenshots/login-expired-light.png" alt="The same login-expired banner in the light theme" width="300">
 </p>
 
 ## Settings
