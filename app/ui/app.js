@@ -196,7 +196,7 @@ $("btn-refresh").addEventListener("click", () => {
 });
 $("btn-usage-page").addEventListener("click", () => api() && api().open_usage_page());
 
-window.addEventListener("blur", () => api() && api().hide());
+window.addEventListener("blur", () => api() && api().blurred());
 document.addEventListener("keydown", (e) => { if (e.key === "Escape") api() && api().hide(); });
 
 window.addEventListener("pywebviewready", async () => {

@@ -51,6 +51,7 @@ class App:
             "save_settings": self.save_settings,
             "usage_page": self.open_usage_page,
             "hide": lambda: None if pin else self.popup.hide(),
+            "blur": lambda: None if pin else self.popup.on_blur(),
         }))
         self.tray = Tray({
             "toggle": lambda: self.popup.toggle(),

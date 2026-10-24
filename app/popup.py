@@ -4,6 +4,7 @@ from __future__ import annotations
 import ctypes
 import json
 import sys
+import threading
 import time
 from ctypes import wintypes
 from pathlib import Path
@@ -12,6 +13,11 @@ from typing import Any, Callable
 import webview
 
 WIDTH, HEIGHT, MARGIN = 380, 580, 12
+SHOW_DELAY = 0.15  # let the shell finish handling the tray click before we take focus
+BLUR_GRACE = 0.6   # the shell can still grab focus back this long after we show
+
+_user32 = ctypes.windll.user32
+_user32.GetForegroundWindow.restype = wintypes.HWND
 
 
 def ui_dir() -> Path:
@@ -27,6 +33,25 @@ def _work_area_logical() -> tuple[float, float, float, float]:
     except AttributeError:
         scale = 1.0
     return rect.left / scale, rect.top / scale, rect.right / scale, rect.bottom / scale
+
+
+def _force_foreground(hwnd: int | None) -> None:
+    """SetForegroundWindow is refused unless we share input state with the
+    current foreground window (the taskbar), so attach to it briefly."""
+    if not hwnd:
+        return
+    fg = _user32.GetForegroundWindow()
+    if fg == hwnd:
+        return
+    ours = ctypes.windll.kernel32.GetCurrentThreadId()
+    theirs = _user32.GetWindowThreadProcessId(fg, None) if fg else 0
+    attached = bool(theirs) and theirs != ours and _user32.AttachThreadInput(ours, theirs, True)
+    try:
+        _user32.BringWindowToTop(hwnd)
+        _user32.SetForegroundWindow(hwnd)
+    finally:
+        if attached:
+            _user32.AttachThreadInput(ours, theirs, False)
 
 
 class Api:
@@ -53,11 +78,16 @@ class Api:
     def hide(self) -> None:
         self._h["hide"]()
 
+    def blurred(self) -> None:
+        self._h["blur"]()
+
 
 class Popup:
     def __init__(self, api: Api):
         self._visible = False
         self._hidden_at = 0.0
+        self._shown_at = 0.0
+        self._hwnd: int | None = None
         self._loaded = False
         self._pending_view: str | None = None
         self.window = webview.create_window(
@@ -78,6 +108,10 @@ class Popup:
 
     def _on_loaded(self) -> None:
         self._loaded = True
+        try:
+            self._hwnd = self.window.native.Handle.ToInt64()
+        except Exception:
+            self._hwnd = _user32.FindWindowW(None, self.window.title)
         if self._pending_view:
             self.window.evaluate_js(f"showView({json.dumps(self._pending_view)})")
             self._pending_view = None
@@ -95,7 +129,10 @@ class Popup:
         if self._visible or time.monotonic() - self._hidden_at < 0.4:
             self.hide()
         else:
-            self.show(view)
+            # Clicking an icon in the tray overflow hands focus back to the
+            # overflow flyout right after the click; showing straight away
+            # loses focus and the blur handler closes the popup again.
+            threading.Timer(SHOW_DELAY, self.show, (view,)).start()
 
     def show(self, view: str = "dashboard") -> None:
         left, top, right, bottom = _work_area_logical()
@@ -108,8 +145,19 @@ class Popup:
             self.window.evaluate_js(f"showView({json.dumps(view)})")
         else:
             self._pending_view = view
+        self._shown_at = time.monotonic()
         self.window.show()
         self._visible = True
+        _force_foreground(self._hwnd)
+
+    def on_blur(self) -> None:
+        if not self._visible:
+            return
+        if time.monotonic() - self._shown_at < BLUR_GRACE:
+            # The shell took focus while the popup was opening: take it back.
+            threading.Timer(0.05, lambda: self._visible and _force_foreground(self._hwnd)).start()
+            return
+        self.hide()
 
     def hide(self) -> None:
         if self._visible:
